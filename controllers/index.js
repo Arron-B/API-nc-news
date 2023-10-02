@@ -1,4 +1,4 @@
-const {getTopics} = require('./get-controllers.js')
+const {getTopics, getEndPoints} = require('./get-controllers.js')
 
 
-module.exports = {getTopics};
+module.exports = {getTopics, getEndPoints};
