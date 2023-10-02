@@ -8,17 +8,15 @@ beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
 describe('GET /api/topics', () => {
-    test('resolves with 200 status code', () => {
-        return request(app).get('/api/topics').expect(200);
-    });
-})
-
-    test('returns correct topic data', () => {
-        return request(app).get('/api/topics').then((topics) => {
-            const topicsArray = topics.body;
+    test('resolves with 200 status code and returns correct topic data', () => {
+        return request(app).get('/api/topics').expect(200)
+        .then((res) => {
+            const topicsArray = res.body.topics;
+            expect(topicsArray).toHaveLength(3);
             topicsArray.forEach((topic) => {
                 expect(typeof topic.slug).toBe('string');
-                expect(typeof topic.description).toBe('string')
+                expect(typeof topic.description).toBe('string');
             })
         })
-});
+    });
+})
