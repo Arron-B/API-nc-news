@@ -1,12 +1,14 @@
 const express = require("express");
-const {getTopics, getEndPoints} = require('./controllers/index.js')
-const {handleCustomErrors} = require('./error-handlers/errors.index.js')
+const {getTopics, getEndPoints, getArticleById} = require('./controllers/index.js')
+const {handleCustomErrors, handlePsqlErrors} = require('./error-handlers/errors.index.js')
 
 app = express();
 
 app.get('/api/topics', getTopics);
 
 app.get('/api', getEndPoints);
+
+app.get('/api/articles/:article_id', getArticleById);
 
 
 
@@ -16,5 +18,7 @@ app.get('/api', getEndPoints);
 
 
 app.use(handleCustomErrors);
+
+app.use(handlePsqlErrors);
 
 module.exports = app;
