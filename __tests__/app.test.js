@@ -43,5 +43,17 @@ describe('GET api/articles/:article_id', () => {
             expect(article.title).toBe('Sony Vaio; or, The Laptop')
         })
     });
+
+    test('responds with status 404 and appropriate message when give a valid, but non-existent article id', () => {
+        return request(app).get('/api/articles/199').expect(404).then((res) => {
+            expect(res.body.msg).toBe('article does not exist');
+        })
+    });
+
+    test('responds with status 400 and appropriate message when give a valid, but non-existent article id', () => {
+        return request(app).get('/api/articles/steve').expect(400).then((res) => {
+            expect(res.body.msg).toBe('Bad request')
+        })
+    });
 })
 
