@@ -1,3 +1,3 @@
-const {fetchTopics} = require('./get-models.js')
+const {fetchTopics, fetchAllArticles, fetchCommentsByArticleId} = require('./get-models.js')
 
-module.exports = {fetchTopics}
+module.exports = {fetchTopics, fetchAllArticles, fetchCommentsByArticleId}
