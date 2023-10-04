@@ -92,7 +92,7 @@ describe('GET /api/articles', () => {
 })
 
 describe('GET /api/articles/:article_id/comments', () => {
-    test('responds with status 200 and sends comments with correct keys and values', () => {
+    test('responds with status 200 and sends a comment with correct keys and values', () => {
         return request(app).get('/api/articles/9/comments').expect(200).then((res) => {
             const comments = res.body.comments;
             const expectComment = {
@@ -107,12 +107,18 @@ describe('GET /api/articles/:article_id/comments', () => {
         }) 
     });
 
-    test('does not send comments from other articles, sends all comments for requested article', () => {
+    test('does not send comments from other articles, sends all comments for requested article, each containing correct keys and property types', () => {
         return request(app).get('/api/articles/1/comments').expect(200).then((res) => {
             const comments = res.body.comments;
             expect(comments).toHaveLength(11);
             comments.forEach((comment) => {
                 expect(comment.article_id).toBe(1)
+                expect(typeof comment.body).toBe('string')
+                expect(typeof comment.votes).toBe('number')
+                expect(typeof comment.author).toBe('string')
+                expect(typeof comment.article_id).toBe('number')
+                expect(typeof comment.created_at).toBe('string')
+                expect(typeof comment.comment_id).toBe('number')
             })
         })
     });
@@ -131,8 +137,11 @@ describe('GET /api/articles/:article_id/comments', () => {
         })
     });
 
-    test('responds with status 204 when given a valid article_id that has no associated comments ', () => {
-        return request(app).get('/api/articles/2/comments').expect(204)
+    test('responds with status 200 when given a valid article_id that has no associated comments, no response message required ', () => {
+        return request(app).get('/api/articles/2/comments').expect(200).then((res) => {
+            const comments = res.body.comments;
+            expect(comments).toHaveLength(0);
+        })
     });
 
     test('responds with status 400 and appropriate message when given a invalid article id', () => {
