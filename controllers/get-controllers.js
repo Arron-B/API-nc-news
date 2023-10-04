@@ -1,4 +1,4 @@
-const {fetchTopics, fetchArticleById} = require('../models/index.js')
+const {fetchTopics, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId} = require('../models/index.js')
 
 exports.getTopics = (req, res,next) => {
     fetchTopics().then((topics) => {
@@ -25,4 +25,12 @@ exports.getArticleById = (req, res, next) => {
     .catch(err => {
         next(err)
     });
+}
+
+exports.getAllArticles = (req, res, next) => {
+    fetchAllArticles().then((articles) => {
+        res.status(200).send({ articles })
+    }).catch((err) => {
+        next(err)
+    })
 }
