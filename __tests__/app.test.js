@@ -59,8 +59,6 @@ describe('GET api/articles/:article_id', () => {
 })
 
 
-})
-
 describe('GET /api/articles', () => {
     test('resolves with 200 status code and returns correct articles with correct key types', () => {
         return request(app).get('/api/articles').expect(200)
