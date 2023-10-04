@@ -91,17 +91,56 @@ describe('GET /api/articles', () => {
     });
 })
 
-// describe('POST /api/articles/:article_id/comments', () => {
-//     test('resolves with status 201 and correct comment object', () => {
-//         const newComment = {
-//             username: 'lurker',
-//             body: 'not a bad read'
-//         }
-//         const date = Date();
-//         console.log(date);
-//         return request(app).post('/api/articles/1/comments').send(newComment).expect(201).then((res) => {
-//             const comment = res.body.comment;
-//             expect(comment).toMatchObject(newComment);
-//         })
-//     });
-// });
+describe('POST /api/articles/:article_id/comments', () => {
+    test('resolves with status 201 and correct comment object.', () => {
+        const newComment = {
+            username: 'lurker',
+            body: 'not a bad read'
+        }
+        return request(app).post('/api/articles/1/comments').send(newComment).expect(201).then((res) => {
+            const comment = res.body.comment;
+            expect(comment).toEqual(newComment.body);
+        })
+    });
+
+    test('inserted comment is in database with correct keys and values', () => {
+        const newComment = {
+            username: 'lurker',
+            body: 'not a bad read'
+        }
+        return request(app).post('/api/articles/2/comments').send(newComment).then((res) => {
+            return db.query(
+                `SELECT * FROM comments
+                WHERE article_id = 2;`
+            ).then((res) => {
+                const comment = res.rows[0];
+                expect(comment.votes).toBe(0);
+                expect(comment).toEqual(expect.objectContaining({
+                  comment_id: expect.any(Number),
+                  body: expect.any(String),
+                  article_id: expect.any(Number),
+                  author: expect.any(String),
+                  votes: 0,
+                  created_at: expect.any(Date)
+                })
+                )
+            }) 
+
+        })
+    });
+
+    test('rejects with status 400 when not given required fields', () => {
+        const newComment = {
+            body: 'not a bad read'
+        }
+        return request(app).post('/api/articles/2/comments').send(newComment).expect(400);
+    });
+
+    // test("rejects with status 400 when trying to post a comment to an article that doesn't exist", () => {
+    //     const newComment = {
+    //         username: 'lurker',
+    //         body: 'not a bad read'
+    //     }
+    //     return request(app).post('/api/articles/209/comments').send(newComment).expect(400);
+    // });
+});
