@@ -35,12 +35,11 @@ describe('GET /api', () => {
 })
 
 describe('GET /api/articles', () => {
-    test('resolves with 200 status code and returns correct article data', () => {
+    test('resolves with 200 status code and returns correct articles with correct key types', () => {
         return request(app).get('/api/articles').expect(200)
         .then((res) => {
             const articlesArray = res.body.articles;
             expect(articlesArray).toHaveLength(13);
-
             articlesArray.forEach((article) => {
                 expect(typeof article.title).toBe('string');
                 expect(typeof article.topic).toBe('string');
@@ -57,12 +56,12 @@ describe('GET /api/articles', () => {
             })
         })
     });
+
     test('articles are sorted by date in descending order', () => {
         return request(app).get('/api/articles')
         .then((res) => {
             const articlesArray = res.body.articles;
-            expect(articlesArray[0].article_id).toBe(3)
-            expect(articlesArray[12].article_id).toBe(7)
+            expect(articlesArray).toBeSortedBy('created_at', {descending: true})
         })
     });
 })
