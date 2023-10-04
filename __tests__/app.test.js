@@ -91,3 +91,17 @@ describe('GET /api/articles', () => {
     });
 })
 
+// describe('POST /api/articles/:article_id/comments', () => {
+//     test('resolves with status 201 and correct comment object', () => {
+//         const newComment = {
+//             username: 'lurker',
+//             body: 'not a bad read'
+//         }
+//         const date = Date();
+//         console.log(date);
+//         return request(app).post('/api/articles/1/comments').send(newComment).expect(201).then((res) => {
+//             const comment = res.body.comment;
+//             expect(comment).toMatchObject(newComment);
+//         })
+//     });
+// });
