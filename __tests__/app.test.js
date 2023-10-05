@@ -136,11 +136,19 @@ describe('POST /api/articles/:article_id/comments', () => {
         return request(app).post('/api/articles/2/comments').send(newComment).expect(400);
     });
 
-    // test("rejects with status 400 when trying to post a comment to an article that doesn't exist", () => {
-    //     const newComment = {
-    //         username: 'lurker',
-    //         body: 'not a bad read'
-    //     }
-    //     return request(app).post('/api/articles/209/comments').send(newComment).expect(400);
-    // });
+    test('rejects with status 400 when given an article_id that is not a number', () => {
+        const newComment = {
+            username: 'lurker',
+            body: 'not a bad read'
+        }
+        return request(app).post('/api/articles/hello/comments').send(newComment).expect(400);
+    });
+
+    test("rejects with status 404 when trying to post a comment to a valid article_id that doesn't exist", () => {
+        const newComment = {
+            username: 'lurker',
+            body: 'not a bad read'
+        }
+        return request(app).post('/api/articles/209/comments').send(newComment).expect(404);
+    });
 });

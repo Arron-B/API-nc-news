@@ -41,5 +41,12 @@
         "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
       }
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "Adds a comment with the associated article_id and username as author. Returns the comment.",
+    "queries": ["username", "body"],
+    "exampleResponse": {
+      "comment": "I did not like it..."
+    }
   }
 }
