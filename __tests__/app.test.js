@@ -109,10 +109,10 @@ describe('PATCH /api/articles/:article_id', () => {
                 SELECT votes FROM articles
                 WHERE article_id = 1 
                 `
-            ).then((res) => {
-                const votes = res.rows[0].votes;
-                expect(votes).toBe(102);
-            })
+            )
+        }).then((res) => {
+            const votes = res.rows[0].votes;
+            expect(votes).toBe(102);
         })
     })
 
@@ -131,23 +131,31 @@ describe('PATCH /api/articles/:article_id', () => {
         })
     })
 
-    test('rejects with status 400 when not given inc_votes in the body', () => {
+    test('rejects with status 400 and appropriate message when not given inc_votes in the body', () => {
         const newVote = {someThingElse: 2};
-        return request(app).patch('/api/articles/1').send(newVote).expect(400)
+        return request(app).patch('/api/articles/1').send(newVote).expect(400).then((res) => {
+            expect(res.body.msg).toBe('No vote provided')
+        })
     });
 
-    test('rejects with status 400 when not given inc_votes with non number property', () => {
+    test('rejects with status 400 and appropriate message when not given inc_votes with non number property', () => {
         const newVote = {inc_votes: 'plus one million votes'};
-        return request(app).patch('/api/articles/1').send(newVote).expect(400)
+        return request(app).patch('/api/articles/1').send(newVote).expect(400).then((res) => {
+            expect(res.body.msg).toBe('Vote must be a number')
+        })
     });
 
-    test("rejects with status 404 when given a valid article number that doesn't exist", () => {
+    test("rejects with status 404 and appropriate message when given a valid article number that doesn't exist", () => {
         const newVote = {inc_votes: 2};
-        return request(app).patch('/api/articles/302').send(newVote).expect(404)
+        return request(app).patch('/api/articles/302').send(newVote).expect(404).then((res) => {
+            expect(res.body.msg).toBe('Article does not exist')
+        })
     });
 
-    test('rejects with status 400 when given an article_id that is not a number', () => {
-        const newVote = {inc_votes: 'plus one million votes'};
-        return request(app).patch('/api/articles/somearticle').send(newVote).expect(400)
+    test('rejects with status 400 and appropriate message when given an article_id that is not a number', () => {
+        const newVote = {inc_votes: 1};
+        return request(app).patch('/api/articles/somearticle').send(newVote).expect(400).then((res) => {
+            expect(res.body.msg).toBe('Article id is invalid. Must be a number.')
+        })
     });
 });

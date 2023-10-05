@@ -1,6 +1,24 @@
 const db = require("../db/connection.js");
 
 exports.updateArticle = (article_id, inc_votes) => {
+    if(!inc_votes) {
+        return Promise.reject({
+            status: 400,
+            msg: 'No vote provided'
+        })
+    }
+    if(typeof inc_votes !== 'number') {
+        return Promise.reject({
+            status: 400,
+            msg: 'Vote must be a number'
+        })
+    }
+    if(!/^\d+$/.test(article_id)) {
+        return Promise.reject({
+            status: 400,
+            msg: 'Article id is invalid. Must be a number.'
+        })
+    }
 
     return db.query(
         `
