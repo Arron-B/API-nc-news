@@ -45,13 +45,13 @@ describe('GET api/articles/:article_id', () => {
         })
     });
 
-    test('responds with status 404 and appropriate message when give a valid, but non-existent article id', () => {
+    test('responds with status 404 and appropriate message when given a valid, but non-existent article id', () => {
         return request(app).get('/api/articles/199').expect(404).then((res) => {
             expect(res.body.msg).toBe('article does not exist');
         })
     });
 
-    test('responds with status 400 and appropriate message when give a valid, but non-existent article id', () => {
+    test('responds with status 400 and appropriate message when given an invalid article id', () => {
         return request(app).get('/api/articles/steve').expect(400).then((res) => {
             expect(res.body.msg).toBe('Bad request')
         })
@@ -91,7 +91,65 @@ describe('GET /api/articles', () => {
     });
 })
 
-describe('POST /api/articles/:article_id/comments', () => {
+describe('GET /api/articles/:article_id/comments', () => {
+    test('responds with status 200 and sends a comment with correct keys and values', () => {
+        return request(app).get('/api/articles/9/comments').expect(200).then((res) => {
+            const comments = res.body.comments;
+            const expectComment = {
+                body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+                votes: 16,
+                author: "butter_bridge",
+                article_id: 9,
+                created_at: "2020-04-06T12:17:00.000Z",
+              }
+            
+            expect(comments).toEqual(expect.arrayContaining([expect.objectContaining(expectComment)]))
+        }) 
+    });
+
+    test('does not send comments from other articles, sends all comments for requested article, each containing correct keys and property types', () => {
+        return request(app).get('/api/articles/1/comments').expect(200).then((res) => {
+            const comments = res.body.comments;
+            expect(comments).toHaveLength(11);
+            comments.forEach((comment) => {
+                expect(comment.article_id).toBe(1)
+                expect(typeof comment.body).toBe('string')
+                expect(typeof comment.votes).toBe('number')
+                expect(typeof comment.author).toBe('string')
+                expect(typeof comment.article_id).toBe('number')
+                expect(typeof comment.created_at).toBe('string')
+                expect(typeof comment.comment_id).toBe('number')
+            })
+        })
+    });
+
+    test('comments are sorted by date with most recent first', () => {
+        return request(app).get('/api/articles/1/comments')
+        .then((res) => {
+            const comments = res.body.comments;
+            expect(comments).toBeSortedBy('created_at', {descending: true})
+        })
+    });
+
+    test('responds with status 404 and appropriate message when given a valid, but non-existent article id', () => {
+        return request(app).get('/api/articles/83/comments').expect(404).then((res) => {
+            expect(res.body.msg).toBe('Article does not exist');
+        })
+    });
+
+    test('responds with status 200 when given a valid article_id that has no associated comments, no response message required ', () => {
+        return request(app).get('/api/articles/2/comments').expect(200).then((res) => {
+            const comments = res.body.comments;
+            expect(comments).toHaveLength(0);
+        })
+    });
+
+    test('responds with status 400 and appropriate message when given a invalid article id', () => {
+        return request(app).get('/api/articles/pikachu/comments').expect(400).then((res) => {
+            expect(res.body.msg).toBe('Bad request')
+        })
+    });
+});describe('POST /api/articles/:article_id/comments', () => {
     test('resolves with status 201 and returns correct comment object.', () => {
         const newComment = {
             username: 'lurker',
