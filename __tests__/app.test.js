@@ -91,3 +91,63 @@ describe('GET /api/articles', () => {
     });
 })
 
+describe('PATCH /api/articles/:article_id', () => {
+    test('resolves with status 200 and returns an updated article with an added vote', () => {
+        const newVote = {inc_votes: 2};
+        return request(app).patch('/api/articles/1').expect(200).send(newVote).then((res) => {
+            const updatedArticle = res.body.article;
+            expect(updatedArticle).toEqual(expect.objectContaining({ 
+                article_id: 1, title: 'Living in the shadow of a great man', topic: 'mitch', author: 'butter_bridge', body: 'I find this existence challenging', created_at: expect.any(String), votes: 102, article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+             }))
+        })
+    });
+    test('The patched article is changed in the database' , () => {
+        const newVote = {inc_votes: 2};
+        return request(app).patch('/api/articles/1').send(newVote).then((res) => {
+            return db.query(
+                `
+                SELECT votes FROM articles
+                WHERE article_id = 1 
+                `
+            ).then((res) => {
+                const votes = res.rows[0].votes;
+                expect(votes).toBe(102);
+            })
+        })
+    })
+
+    test('The patch works for decrementing votes on an article' , () => {
+        const newVote = {inc_votes: -2};
+        return request(app).patch('/api/articles/1').send(newVote).then((res) => {
+            return db.query(
+                `
+                SELECT votes FROM articles
+                WHERE article_id = 1 
+                `
+            ).then((res) => {
+                const votes = res.rows[0].votes;
+                expect(votes).toBe(98);
+            })
+        })
+    })
+
+    test('rejects with status 400 when not given inc_votes in the body', () => {
+        const newVote = {someThingElse: 2};
+        return request(app).patch('/api/articles/1').send(newVote).expect(400)
+    });
+
+    test('rejects with status 400 when not given inc_votes with non number property', () => {
+        const newVote = {inc_votes: 'plus one million votes'};
+        return request(app).patch('/api/articles/1').send(newVote).expect(400)
+    });
+
+    test("rejects with status 404 when given a valid article number that doesn't exist", () => {
+        const newVote = {inc_votes: 2};
+        return request(app).patch('/api/articles/302').send(newVote).expect(404)
+    });
+
+    test('rejects with status 400 when given an article_id that is not a number', () => {
+        const newVote = {inc_votes: 'plus one million votes'};
+        return request(app).patch('/api/articles/somearticle').send(newVote).expect(400)
+    });
+});

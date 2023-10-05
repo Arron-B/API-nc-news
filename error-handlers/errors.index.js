@@ -15,3 +15,8 @@ exports.handlePsqlErrors = (err, req, res, next) => {
         res.status(400).send({msg: 'Bad request'});
      } else next(err);
 }
+
+exports.handle500Errors = (err, req, res, next) => {
+   console.log(err, 'ERROR: unhandled error, please fix!');
+   res.status(500).send({message: 'Internal server error'})
+}
