@@ -10,11 +10,6 @@ exports.fetchTopics = () => {
 
 exports.fetchArticleById = (article_id) => {
     const idType = Number(article_id)
-    // if (!idType === 'number') {
-    //     return Promise.reject({
-    //         status: 400,
-    //         msg: 'Bad request'
-    //     })
     return db.query(
         `SELECT * FROM articles
         WHERE article_id = $1`, [article_id]
@@ -45,12 +40,24 @@ exports.fetchAllArticles = () => {
 
 exports.fetchCommentsByArticleId = (article_id) => {
     return db.query(
-        `SELECT comment_id, a.article_id
-        FROM comments c
-        INNER JOIN articles a
-        ON a.article_id = c.article_id
-        WHERE c.article_id = $1;`, [article_id]).then((res) => {
-        const comments = res.rows
-        return comments;
-    })
+        `SELECT * FROM articles
+        WHERE article_id = $1`, [article_id]).then((res) => {
+            const article = res.rows[0]
+            if(!article) {
+                return Promise.reject({
+                    status: 404,
+                    msg: 'Article does not exist'
+                })
+            }
+            const article_id = article.article_id;
+            return article_id
+        }).then((article_id) => {
+            return db.query(
+                `SELECT * FROM comments
+                WHERE article_id = $1
+                ORDER BY created_at DESC;`, [article_id]).then((res) => {
+                const comments = res.rows
+                return comments;
+            })
+        })
 }

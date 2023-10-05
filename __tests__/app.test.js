@@ -45,13 +45,13 @@ describe('GET api/articles/:article_id', () => {
         })
     });
 
-    test('responds with status 404 and appropriate message when give a valid, but non-existent article id', () => {
+    test('responds with status 404 and appropriate message when given a valid, but non-existent article id', () => {
         return request(app).get('/api/articles/199').expect(404).then((res) => {
             expect(res.body.msg).toBe('article does not exist');
         })
     });
 
-    test('responds with status 400 and appropriate message when give a valid, but non-existent article id', () => {
+    test('responds with status 400 and appropriate message when given an invalid article id', () => {
         return request(app).get('/api/articles/steve').expect(400).then((res) => {
             expect(res.body.msg).toBe('Bad request')
         })
@@ -91,6 +91,147 @@ describe('GET /api/articles', () => {
     });
 })
 
+describe('GET /api/articles/:article_id/comments', () => {
+    test('responds with status 200 and sends a comment with correct keys and values', () => {
+        return request(app).get('/api/articles/9/comments').expect(200).then((res) => {
+            const comments = res.body.comments;
+            const expectComment = {
+                body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+                votes: 16,
+                author: "butter_bridge",
+                article_id: 9,
+                created_at: "2020-04-06T12:17:00.000Z",
+              }
+            
+            expect(comments).toEqual(expect.arrayContaining([expect.objectContaining(expectComment)]))
+        }) 
+    });
+
+    test('does not send comments from other articles, sends all comments for requested article, each containing correct keys and property types', () => {
+        return request(app).get('/api/articles/1/comments').expect(200).then((res) => {
+            const comments = res.body.comments;
+            expect(comments).toHaveLength(11);
+            comments.forEach((comment) => {
+                expect(comment.article_id).toBe(1)
+                expect(typeof comment.body).toBe('string')
+                expect(typeof comment.votes).toBe('number')
+                expect(typeof comment.author).toBe('string')
+                expect(typeof comment.article_id).toBe('number')
+                expect(typeof comment.created_at).toBe('string')
+                expect(typeof comment.comment_id).toBe('number')
+            })
+        })
+    });
+
+    test('comments are sorted by date with most recent first', () => {
+        return request(app).get('/api/articles/1/comments')
+        .then((res) => {
+            const comments = res.body.comments;
+            expect(comments).toBeSortedBy('created_at', {descending: true})
+        })
+    });
+
+    test('responds with status 404 and appropriate message when given a valid, but non-existent article id', () => {
+        return request(app).get('/api/articles/83/comments').expect(404).then((res) => {
+            expect(res.body.msg).toBe('Article does not exist');
+        })
+    });
+
+    test('responds with status 200 when given a valid article_id that has no associated comments, no response message required ', () => {
+        return request(app).get('/api/articles/2/comments').expect(200).then((res) => {
+            const comments = res.body.comments;
+            expect(comments).toHaveLength(0);
+        })
+    });
+
+    test('responds with status 400 and appropriate message when given a invalid article id', () => {
+        return request(app).get('/api/articles/pikachu/comments').expect(400).then((res) => {
+            expect(res.body.msg).toBe('Bad request')
+        })
+    });
+});describe('POST /api/articles/:article_id/comments', () => {
+    test('resolves with status 201 and returns correct comment object.', () => {
+        const newComment = {
+            username: 'lurker',
+            body: 'not a bad read'
+        }
+        return request(app).post('/api/articles/1/comments').send(newComment).expect(201).then((res) => {
+            const comment = res.body.comment;
+            expect(comment).toEqual(expect.objectContaining({
+                comment_id: 19,
+                body: 'not a bad read',
+                article_id: 1,
+                author: 'lurker',
+                votes: 0,
+                created_at: expect.any(String)
+              })
+             )
+        })
+    });
+
+    test('inserted comment is in database with correct keys and values', () => {
+        const newComment = {
+            username: 'lurker',
+            body: 'not a bad read'
+        }
+        return request(app).post('/api/articles/2/comments').send(newComment).then((res) => {
+            return db.query(
+                `SELECT * FROM comments
+                WHERE article_id = 2;`
+            ).then((res) => {
+                const comment = res.rows[0];
+                expect(comment).toEqual(expect.objectContaining({
+                  comment_id: 19,
+                  body: 'not a bad read',
+                  article_id: 2,
+                  author: 'lurker',
+                  votes: 0,
+                  created_at: expect.any(Date)
+                })
+                )
+            }) 
+
+        })
+    });
+
+    test('rejects with status 400 and appropriate message when there is no username (user is not logged in)', () => {
+        const newComment = {
+            body: 'not a bad read'
+        }
+        return request(app).post('/api/articles/2/comments').send(newComment).expect(400).then((res) => {
+            expect(res.body.msg).toBe('Cannot comment without logging in')
+        });
+    });
+
+    test('rejects with status 400 and appropriate message when no comment is provided', () => {
+        const newComment = {
+            username: 'lurker'
+        }
+        return request(app).post('/api/articles/2/comments').send(newComment).expect(400).then((res) => {
+            expect(res.body.msg).toBe('Cannot submit an empty comment');
+    });
+    });
+
+    test('rejects with status 400 when given an article_id that is not a number', () => {
+        const newComment = {
+            username: 'lurker',
+            body: 'not a bad read'
+        }
+        return request(app).post('/api/articles/hello/comments').send(newComment).expect(400).then((res) => {
+            expect(res.body.msg).toBe('Article id is invalid. Must be a number.');
+    });
+    });
+
+    test("rejects with status 404 and appropraite message when trying to post a comment to a valid article_id that doesn't exist", () => {
+        const newComment = {
+            username: 'lurker',
+            body: 'not a bad read'
+        }
+        return request(app).post('/api/articles/209/comments').send(newComment).expect(404).then((res) => {
+            expect(res.body.msg).toBe('No article with this id');
+        })
+    });
+});
 describe('PATCH /api/articles/:article_id', () => {
     test('resolves with status 200 and returns an updated article with an added vote', () => {
         const newVote = {inc_votes: 2};

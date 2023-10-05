@@ -42,6 +42,28 @@
       }
     }
   },
+  "GET /api/articles/:article_id/comments": {
+    "description" : "serves all associated comments a single requested article",
+    "queries" : [],
+    "exampleResponse": { "comments" : [
+      {
+        "comment_id": 1,
+        "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+        "article_id": 9,
+        "author": "butter_bridge",
+        "votes": 16,
+        "created_at": "2020-04-06T12:17:00.000Z"
+      }
+    ]  
+    }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "Adds a comment with the associated article_id and username as author. Returns the comment.",
+    "queries": ["username", "body"],
+    "exampleResponse": {
+      "comment": "I did not like it..."
+    }
+  },
   "PATCH /api/articles/:article_id": {
     "description": "Takes an inc_votes number property and adjusts votes column of the article with the correct article_id according to the value. Returns the updated article.",
     "queries": [],

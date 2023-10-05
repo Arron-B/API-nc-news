@@ -52,11 +52,13 @@ The following is _not_ a comprehensive list! Its purpose is just to get the ball
 
 ### POST `/api/articles/:article_id/comments`
 
-- ???
+-
 
 ### GET `/api/articles/:article_id/comments`
 
-- ???
+- Well formed `article_id` that doesn't exist (e.g. `83`)
+- Well formed `article_id` that has no associated comments (e.g. `2`)
+- Bad `article_id` (e.g. `/coffee`)
 
 ### GET `/api/articles`
 
