@@ -6,6 +6,7 @@ const testData = require("../db/data/test-data");
 
 
 
+
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
@@ -297,6 +298,35 @@ describe('PATCH /api/articles/:article_id', () => {
         const newVote = {inc_votes: 1};
         return request(app).patch('/api/articles/somearticle').send(newVote).expect(400).then((res) => {
             expect(res.body.msg).toBe('Article id is invalid. Must be a number.')
+        })
+    });
+});
+
+describe('DELETE /api/comments/:comment_id', () => {
+    test('resolves with status 204 and removes correct comment from database', () => {
+        return db.query(`
+            SELECT * FROM comments
+            WHERE comment_id = 1;
+            `).then((res) => {
+                expect(res.rowCount).toBe(1);
+                return request(app).delete('/api/comments/1').expect(204)
+            }).then(() => {
+                return db.query(`
+                 SELECT * FROM comments
+                 WHERE comment_id = 1;
+            `)
+            }).then((res) => {
+                expect(res.rowCount).toBe(0);
+            })
+    });
+    test('error status 404 Not Found when trying to delete a comment that does not exist', () => {
+        return request(app).delete('/api/comments/29').expect(404).then((res) => {
+            expect(res.body.msg).toBe('Not Found')
+        })
+    });
+    test('error status 400 Invalid ID when comment_id is not a number', () => {
+        return request(app).delete('/api/comments/commentIregret').expect(400).then((res) => {
+            expect(res.body.msg).toBe('Invalid ID: Must be a number')
         })
     });
 });
