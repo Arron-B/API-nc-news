@@ -131,6 +131,21 @@ describe('GET /api/articles', () => {
         })
     })
 
+    test('Articles can be sorted by any column, defaulting to descending', (columns = ['title', 'topic', 'author', 'article_img_url', 'article_id', 'votes', 'comment_count']) => {
+        const promises = columns.map((column) => {
+            return request(app).get(`/api/articles?sort_by=${column}`).then((res) => {
+                const articles = res.body.articles;
+                return articles;
+            })
+        })
+        return Promise.all(promises)
+        .then((promiseResults) => {
+        columns.forEach((column, i) => {
+            expect(promiseResults[i]).toBeSortedBy(column, { descending: true })
+        })
+        })
+    });
+
 })
 
 describe('GET /api/articles/:article_id/comments', () => {
@@ -191,6 +206,8 @@ describe('GET /api/articles/:article_id/comments', () => {
             expect(res.body.msg).toBe('Bad request')
         })
     });
+
+
 });describe('POST /api/articles/:article_id/comments', () => {
     test('resolves with status 201 and returns correct comment object.', () => {
         const newComment = {

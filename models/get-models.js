@@ -29,7 +29,8 @@ exports.fetchArticleById = (article_id) => {
     })
 }
 
-exports.fetchAllArticles = (topic) => {
+exports.fetchAllArticles = (topic, sort_by) => {
+    
     return db.query(`
         SELECT * FROM topics
         WHERE slug = $1;`, [topic]).then((res) => {
@@ -45,15 +46,29 @@ exports.fetchAllArticles = (topic) => {
         FROM articles a 
         LEFT JOIN comments c 
         ON a.article_id = c.article_id`;
-        if(topic) {
+        if(topic && !sort_by) {
             query += `  WHERE a.topic = $1
                         GROUP BY a.article_id
                         ORDER BY a.created_at DESC;`;
             return db.query(query, [topic])
         }
+
+        if(topic && sort_by) {
+            query += `  WHERE a.topic = $1
+                        GROUP BY a.article_id
+                        ORDER BY ${sort_by} DESC;`;
+            return db.query(query, [topic])
+        }
+
+        if(sort_by) {
+            query += `
+                GROUP BY a.article_id
+                ORDER BY ${sort_by} DESC;`;
+            return db.query(query)
+        }
     
         query += ` GROUP BY a.article_id
-                  ORDER BY a.created_at DESC;`;
+                   ORDER BY a.created_at DESC;`;
         
         return db.query(query)
     })
