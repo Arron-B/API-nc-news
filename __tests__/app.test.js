@@ -146,6 +146,33 @@ describe('GET /api/articles', () => {
         })
     });
 
+    test('Articles can be sorted by any column ascending', (columns = ['title', 'topic', 'author', 'article_img_url', 'article_id', 'votes', 'comment_count']) => {
+        const promises = columns.map((column) => {
+            return request(app).get(`/api/articles?sort_by=${column}&order=asc`).then((res) => {
+                const articles = res.body.articles;
+                return articles;
+            })
+        })
+        return Promise.all(promises)
+        .then((promiseResults) => {
+        columns.forEach((column, i) => {
+            expect(promiseResults[i]).toBeSortedBy(column, { ascending: true })
+        })
+        })
+    });
+
+    test('Rejects with 400 and appropriate message if sort_by is not a valid column.  This also protects from sql injection', () => {
+            return request(app).get(`/api/articles?sort_by=notAcolumn`).expect(400).then((res) => {
+                expect(res.body.msg).toBe('Invalid sort by query')
+            })
+    });
+
+    test('Rejects with 400 and appropriate message if order is not asc or desc.  This also protects from sql injection', () => {
+        return request(app).get(`/api/articles?order=someBadStuff`).expect(400).then((res) => {
+            expect(res.body.msg).toBe('Invalid order query')
+        })
+});
+
 })
 
 describe('GET /api/articles/:article_id/comments', () => {
