@@ -27,7 +27,7 @@
     }
   },
   "GET /api/articles/:article_id": {
-    "description": "serves a single article with requested id",
+    "description": "serves all columns of plus a count of comments received for a single article with requested id",
     "queries": [],
     "exampleResponse": {
       "article": {
@@ -38,7 +38,8 @@
         "body": "Text from the article..",
         "created_at": "2020-10-16T05:03:00.000Z",
         "votes": 0,
-        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+        "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        "comment_count": 0
       }
     }
   },

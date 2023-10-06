@@ -35,13 +35,28 @@ describe('GET /api', () => {
 })
 
 describe('GET api/articles/:article_id', () => {
-    test('resolves with a status 200 and the correct article and properties', () => {
+    test('resolves with a status 200 and the correct article keys and values', () => {
+        return request(app).get('/api/articles/1').expect(200).then((res) => {
+            const article = res.body.article
+            expect(article).toEqual(expect.objectContaining({
+                article_id: 1,
+                title: "Living in the shadow of a great man",
+                topic: "mitch",
+                author: "butter_bridge",
+                body: "I find this existence challenging",
+                created_at: expect.any(String),
+                votes: 100,
+                article_img_url:
+                  "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                comment_count: 11
+            }))
+        })
+    });
+
+    test('Has a comment_count of 0 if the article has no associated comments', () => {
         return request(app).get('/api/articles/2').expect(200).then((res) => {
             const article = res.body.article
-            const keys = ['article_id', 'title', 'topic', 'author', 'body', 'created_at', 'votes', 'article_img_url']
-            expect(keys.every(key => article.hasOwnProperty(key))).toBe(true)
-            expect(article.article_id).toBe(2)
-            expect(article.title).toBe('Sony Vaio; or, The Laptop')
+            expect(article.comment_count).toBe(0);
         })
     });
 

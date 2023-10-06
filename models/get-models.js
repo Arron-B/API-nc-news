@@ -11,8 +11,12 @@ exports.fetchTopics = () => {
 exports.fetchArticleById = (article_id) => {
     const idType = Number(article_id)
     return db.query(
-        `SELECT * FROM articles
-        WHERE article_id = $1`, [article_id]
+        `SELECT a.author, a.title, a.article_id, a.body, a.topic, a.created_at, a.votes, a.article_img_url, CAST(COUNT(c.article_id) AS INT) comment_count
+        FROM articles a
+        LEFT JOIN comments c 
+        ON a.article_id = c.article_id
+        WHERE a.article_id = $1
+        GROUP BY a.article_id;`, [article_id]
         ).then((res) => {
         const article = res.rows[0];
         if(!article) {
