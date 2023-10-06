@@ -1,5 +1,5 @@
 const db = require('../db/connection.js')
-const {fetchTopics, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId} = require('./get-models.js')
+const {fetchTopics, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, fetchAllUsers} = require('./get-models.js')
 
 const {insertComment, updateArticle} = require('./add-models.js')
 
@@ -25,5 +25,6 @@ const removeCommentFromDb = (comment_id) => {
                 `, [comment_id])
         }
     )}
-module.exports = {fetchTopics, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, insertComment, updateArticle, removeCommentFromDb}
+    
+module.exports = {fetchTopics, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, insertComment, updateArticle, fetchAllUsers, removeCommentFromDb}
 

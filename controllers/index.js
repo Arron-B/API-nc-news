@@ -1,4 +1,4 @@
-const {getTopics, getEndPoints, getAllArticles, getArticleById, getCommentsByArticleId} = require('./get-controllers.js')
+const {getTopics, getEndPoints, getAllArticles, getArticleById, getCommentsByArticleId,getAllUsers} = require('./get-controllers.js')
 const {addComment, patchArticle} = require('./add-controllers.js')
 const {removeCommentFromDb} = require('../models/index.js')
 
@@ -14,5 +14,5 @@ const deleteComment = (req, res, next) => {
 
 
 
-module.exports = {getTopics, getEndPoints, getAllArticles, getArticleById, getCommentsByArticleId, addComment, patchArticle, deleteComment};
+module.exports = {getTopics, getEndPoints, getAllArticles, getArticleById, getCommentsByArticleId, addComment, patchArticle, getAllUsers, deleteComment};
 
