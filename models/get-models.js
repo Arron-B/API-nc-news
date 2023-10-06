@@ -88,3 +88,13 @@ exports.fetchCommentsByArticleId = (article_id) => {
             })
         })
 }
+
+exports.fetchAllUsers = () => {
+    return db.query(`
+    SELECT username, name, avatar_url
+    FROM users;
+    `).then((res) => {
+        const users = res.rows;
+        return users;
+    })
+}
