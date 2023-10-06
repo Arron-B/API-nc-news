@@ -90,6 +90,32 @@ describe('GET /api/articles', () => {
             expect(articlesArray).toBeSortedBy('created_at', {descending: true})
         })
     });
+
+    test('articles can be queried to show articles of a topic', () => {
+        return request(app).get('/api/articles?topic=mitch').expect(200)
+        .then((res) => {
+            const articlesArray = res.body.articles;
+            expect(articlesArray).toHaveLength(12);
+            articlesArray.forEach((article) => {
+                expect(article).toEqual(expect.objectContaining({
+                    topic: 'mitch'
+                }))
+            })
+        })
+    });
+
+    test('Should return 404 and appropriate message for a topic that does not exist', () => {
+        return request(app).get('/api/articles?topic=puppy').expect(404).then((res) => {
+            expect(res.body.msg).toBe('Topic does not exist')
+        })
+    })
+
+    test('Should return 404 and appropriate message for a topic that does exist, but has no associated articles', () => {
+        return request(app).get('/api/articles?topic=paper').expect(404).then((res) => {
+            expect(res.body.msg).toBe('There are no articles of this topic')
+        })
+    })
+
 })
 
 describe('GET /api/articles/:article_id/comments', () => {
