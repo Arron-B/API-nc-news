@@ -29,7 +29,42 @@ exports.fetchArticleById = (article_id) => {
     })
 }
 
-exports.fetchAllArticles = (topic) => {
+exports.fetchAllArticles = (topic, sort_by, order) => {
+    const validOrders = {
+        ASC: 'ASC',
+        DESC: 'DESC',
+        asc: 'ASC',
+        desc: 'DESC'
+    }
+
+    const validSortBys = {
+        title: 'title',
+        topic: 'topic',
+        author: 'author',
+        article_img_url: 'article_img_url',
+        article_id: 'article_id',
+        votes: 'votes',
+        comment_count: 'comment_count'
+    }
+
+    if(order && order in validOrders === false) {
+        return Promise.reject({
+            status: 400,
+            msg: 'Invalid order query'
+        })
+    };
+
+    if(sort_by && sort_by in validSortBys === false) {
+        return Promise.reject({
+            status: 400,
+            msg: 'Invalid sort by query'
+        })
+    };
+
+    if(!order) {
+        order = 'DESC'
+    }
+    
     return db.query(`
         SELECT * FROM topics
         WHERE slug = $1;`, [topic]).then((res) => {
@@ -45,15 +80,29 @@ exports.fetchAllArticles = (topic) => {
         FROM articles a 
         LEFT JOIN comments c 
         ON a.article_id = c.article_id`;
-        if(topic) {
+        if(topic && !sort_by) {
             query += `  WHERE a.topic = $1
                         GROUP BY a.article_id
-                        ORDER BY a.created_at DESC;`;
+                        ORDER BY a.created_at ${validOrders[order]};`;
             return db.query(query, [topic])
+        }
+
+        if(topic && sort_by) {
+            query += `  WHERE a.topic = $1
+                        GROUP BY a.article_id
+                        ORDER BY ${validSortBys[sort_by]} ${validOrders[order]};`;
+            return db.query(query, [topic])
+        }
+
+        if(sort_by) {
+            query += `
+                GROUP BY a.article_id
+                ORDER BY ${validSortBys[sort_by]} ${validOrders[order]};`;
+            return db.query(query)
         }
     
         query += ` GROUP BY a.article_id
-                  ORDER BY a.created_at DESC;`;
+                   ORDER BY a.created_at ${validOrders[order]};`;
         
         return db.query(query)
     })

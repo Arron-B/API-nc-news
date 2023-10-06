@@ -11,7 +11,7 @@
   },
   "GET /api/articles": {
     "description": "serves an array of all articles",
-    "queries": ["author", "topic", "sort_by", "order"],
+    "queries": ["topic", "sort_by", "order"],
     "exampleResponse": {
       "articles": [
         {
@@ -59,7 +59,7 @@
     }
   },
   "POST /api/articles/:article_id/comments": {
-    "description": "Adds a comment with the associated article_id and username as author. Returns the comment.",
+    "description": "Takes a username and body and adds a comment with the associated article_id. Username is saveds as author and body as body. Returns the comment.",
     "queries": ["username", "body"],
     "exampleResponse": {
       "comment": "I did not like it..."
