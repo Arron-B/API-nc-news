@@ -307,28 +307,30 @@ describe('GET api/users', () => {
         return request(app).get('/api/users').expect(200).then((res) => {
             const users = res.body.users;
             expect(users).toHaveLength(4);
-            expect(users).toEqual(expect.arrayContaining([expect.objectContaining({
+            expect(users).toEqual(expect.arrayContaining([{
                 username: 'butter_bridge',
                 name: 'jonny',
                 avatar_url:
                 'https://www.healthytherapies.com/wp-content/uploads/2016/06/Lime3.jpg'
-            })]))
-            expect(users).toEqual(expect.arrayContaining([expect.objectContaining({
+            },
+            {
                 username: 'icellusedkars',
                 name: 'sam',
                 avatar_url: 'https://avatars2.githubusercontent.com/u/24604688?s=460&v=4'
-            })]))
-            expect(users).toEqual(expect.arrayContaining([expect.objectContaining({
+            },
+            {
                 username: 'rogersop',
                 name: 'paul',
                 avatar_url: 'https://avatars2.githubusercontent.com/u/24394918?s=400&v=4'
-            })]))
-            expect(users).toEqual(expect.arrayContaining([expect.objectContaining({
+            },
+            {
                 username: 'lurker',
                 name: 'do_nothing',
                 avatar_url:
                 'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png'
-            })]))
+            }
+            
+            ]))
         })
     });
 });
